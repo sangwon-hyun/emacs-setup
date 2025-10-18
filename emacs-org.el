@@ -5,6 +5,7 @@
 
 (setq org-startup-folded t)
 
+
 ;; Force dependencies to be honored among org mode items
 (setq org-enforce-todo-dependencies t)
 (setq org-enforce-todo-checkbox-dependencies t)
@@ -63,10 +64,10 @@
   '(setf org-highlight-latex-fragments-and-specials t))
 
 ;; All todo files go here; only the html output goes in the actual folders.
-(setq org-directory "/home/sangwonh/Dropbox/Documents/orglife")
+(setq org-directory "~/Dropbox/Documents/orglife")
 ;; The archived things all go here.
-(setq org-archive-location "/home/sangwonh/Dropbox/Documents/orglife/archive.org::* From %s")
-(setq org-agenda-files (list "/home/sangwonh/Dropbox/Documents/orglife/todo.org"))
+(setq org-archive-location "~/Dropbox/Documents/orglife/archive.org::* From %s")
+(setq org-agenda-files (list "~/Dropbox/Documents/orglife/todo.org"))
 ;; (setq org-agenda-files (list "/home/sangwonh/Desktop/temp-todo.org"))
 ;; ;; (format "%s/%s" org-base-path "notes.org")
 ;; ;; (concat ORG "::")
@@ -178,6 +179,8 @@
 ;; ;; Enabling github-style org html export
 ;; (eval-after-load "org"
 ;;   '(require 'ox-gfm nil t))
+(eval-after-load "org"
+  '(require 'ox-gfm nil t))
 
 ;; ;; Showing emacs what program (i.e. pand to use for markdown
 ;; (setq markdown-command "/usr/bin/pandoc")
@@ -386,7 +389,12 @@
 ;; ;; ;; Promising but not tried yet: real-time rendering of LaTeX
 ;; ;; (add-hook 'org-mode-hook 'org-fragtog-mode)
 
-(add-hook 'org-mode-hook 'org-sticky-header-mode)
+
+;; I don't really like this anymore:
+;; (use-package org-sticky-header
+;;   :ensure t
+;;   :hook (org-mode . org-sticky-header-mode))
+;; (add-hook 'org-mode-hook 'org-sticky-header-mode) ;I think this is redundant
 
 
 
@@ -448,3 +456,15 @@
 (setq inhibit-splash-screen t)
 (org-agenda-list)
 (delete-other-windows)
+
+
+
+;; ess console turns grey.. preventing this!
+;; https://github.com/emacs-ess/ESS/issues/1193
+(require 'xterm-color)
+(defun my-inferior-ess-init ()
+  "Workaround for https://github.com/emacs-ess/ESS/issues/1193"
+  (add-hook 'comint-preoutput-filter-functions #'xterm-color-filter -90 t)
+  (setq-local ansi-color-for-comint-mode nil))
+
+(add-hook 'inferior-ess-mode-hook #'my-inferior-ess-init)

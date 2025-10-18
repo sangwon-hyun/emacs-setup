@@ -88,8 +88,8 @@
 
 ;; Manually setting some variables to use. These are the same variables I'll use
 ;; throughout.
-(setenv "DB" "/home/sangwonh/Dropbox")
-(setenv "ORG" "/home/sangwonh/Dropbox/Documents/orglife")
+(setenv "DB" "~/Dropbox")
+(setenv "ORG" "~/Dropbox/Documents/orglife")
 
 
 ;; Copy path and environment variables from shell environment.
@@ -102,7 +102,7 @@
 ;;   (setenv "PATH" path)
 ;;   (setq exec-path
 ;;         (append
-;;          (split-string-and-unquote path ":")
+;;          (Split-string-anD-unquote path ":")
 ;;          exec-path)))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -137,31 +137,44 @@
 
 
 ;; Changing backup behavior to save to ~/.saves
-(setq backup-directory-alist `(("." . "~/.saves")))
+(setq backup-directory-alist `(("." . "~/Dropbox/Documents/orglife/backup/.saves")))
 (setq backup-by-copying t)
 (setq delete-old-versions t
   kept-new-versions 6
   kept-old-versions 2
   version-control t)
 
-
-
 ;; Ensure environment variables inside Emacs look the same as in the user's shell.
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
+
+;;; Shell Configure
+;; Ensure environment variables inside Emacs look the same as in the user's shell.
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns))
+  :config
+  (exec-path-from-shell-initialize))
+
+
+;; Remote file will be kept without testing if they still exists. Added in an
+;; attempt to make emacs open/quit faster.
+(setq recentf-keep '(file-remote-p file-readable-p))
 
 
 ;; Enabling access to list of recently edited files
 (use-package recentf
   :config
-  (setq recentf-max-saved-items 2000
-        recentf-max-menu-items 200
+  (setq recentf-max-saved-items 10000
+        recentf-max-menu-items 5000
+	recentf-save-file "~/.cache/emacs/recentf"
         ;; disable recentf-cleanup on Emacs start, because it can cause
         ;; problems with remote files
         recentf-auto-cleanup 'never)
   (recentf-mode +1))
 (setq recentf-keep '(file-remote-p file-readable-p))
 
+;; Automatically save recent files every 5 minutes.
+(run-at-time (current-time) 300 'recentf-save-list)
 
 
 ; Allows colors in emacs M-x shell.
@@ -362,7 +375,8 @@ Version 2017-06-02"
 ;; (global-set-key (kbd "C-c +") 'evil-numbers/inc-at-pt)
 
 
-;; Scrolling without moving point (cursor)
+;; Scrolling without moving point (cursor) [FYI I had to remove from mission
+;; control ^up and ^down on my macbook for these to work.]
 (defun gcm-scroll-down ()
   (interactive)
   (scroll-up 2))
@@ -373,6 +387,12 @@ Version 2017-06-02"
 
 (global-set-key [(control down)] 'gcm-scroll-down)
 (global-set-key [(control up)]   'gcm-scroll-up)
+
+
+;; (global-unset-key (kbd "C-up"))
+;; (define-key global-map (kbd "<S-up>") nil)
+
+
 
 ;; Current line highlighting!! This is great for latex editing, not so much for
 ;; org mode since various other things like checkboxes and coloring are masked.
@@ -421,8 +441,8 @@ Version 2017-06-02"
 (global-set-key (kbd "C-+") 'hs-toggle-hiding)
 
 ;; Org-like hideshow behavior
-(add-to-list 'load-path "/home/sangwonh/repos/emacs-setup")
-(add-to-list 'load-path "/home/sangwonh/repos/emacs-setup/extra")
+(add-to-list 'load-path "~/repos/emacs-setup")
+(add-to-list 'load-path "~/repos/emacs-setup/extra")
 (require 'hideshow-org)
 
 
@@ -439,25 +459,9 @@ Version 2017-06-02"
 
 ;; The misc-cmds.el file is here:
 ;; https://www.emacswiki.org/emacs/download/misc-cmds.el
-(load-library "/home/sangwonh/repos/emacs-setup/misc-cmds.el")
+(load-library "~/repos/emacs-setup/misc-cmds.el")
 (global-set-key [remap previous-buffer] 'previous-buffer-repeat)
 (global-set-key [remap next-buffer]     'next-buffer-repeat)
-
-;; ;; Remote file will be kept without testing if they still exists. Added in an
-;; ;; attempt to make emacs open/quit faster.
-(setq recentf-keep '(file-remote-p file-readable-p))
-
-;; ;; Automatically save recent files every 5 minutes.
-;; (run-at-time (current-time) 300 'recentf-save-list)
-
-
-;; ;; Trying to make emacs startup faster
-;; ;; Per: https://github.com/bbatsov/prelude/issues/896
-;; (eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
-
-;; (require 'recentf)
-;; (setq recentf-auto-cleanup 'never) ;; disable before we start recentf!
-;; (recentf-mode 1)
 
 
 ;; Tramp and SSH
@@ -545,7 +549,6 @@ Version 2017-06-02"
 
 
 
-
 ;; KILL current buffer file and close
 ;; based on http://emacsredux.com/blog/2013/04/03/delete-file-and-buffer/
 (defun delete-current-file-and-buffer ()
@@ -581,13 +584,10 @@ Version 2017-06-02"
 ;; (global-set-key [f8] 'remove-newlines-in-region) ;; Not doing this
 
 
-
 ;; Experimental; trying to make typing/scrolling smoother
 (setq redisplay-dont-pause t)
 (require 'smooth-scrolling)
 (smooth-scrolling-mode 1)
-
-
 
 
 ;; Use Python3 by default
@@ -654,57 +654,35 @@ Version 2017-06-02"
 ;;   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
 
 
-
-
-
-
 ;; ediff needs to be improved
 ;; See this for more tips https://oremacs.com/2015/01/17/setting-up-ediff/
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-diff-options "-w")
 
 
-
 ;; Making help faster (https://eklitzke.org/making-helm-projectile-find-file-fast-in-large-projects)
 (setq projectile-enable-caching t)
-
 
 ;; Make shell pop
 (global-set-key (kbd "<C-M-return>") 'shell-pop)
 
-
-;; Run crontab in emacs
-(defun crontab-e ()
-    "Run `crontab -e' in a emacs buffer."
-    (interactive)
-    (with-editor-async-shell-command "crontab -e"))
-
-
-;; Workaround for ESS's issue https://github.com/emacs-ess/ESS/issues/1074
-(setq ess-ask-for-ess-directory nil)
-
-;; Preventing Rhistory file from being created
-(setq ess-history-file nil)
-
-
-;; Trying to speed up the incredibly slow ESS + company (I think)
-(setq ess-use-flymake nil)
-(setq ess-eval-visibly-p nil)
-
 ;; Still trying to speed up company mode from here: https://www.reddit.com/r/emacs/comments/m52nky/im_sorry_but_why_is_lspmode_and_company_so_slow/
-(setq company-idle-delay 0.35 ;; How long to wait before popping up
-      company-minimum-prefix-length 3 ;; Show the menu after one key press
+;; https://www.monolune.com/articles/configuring-company-mode-in-emacs/
+(setq company-idle-delay 0;; How long to wait before popping up
+      company-minimum-prefix-length 2 ;; Show the menu after one key press
       )
 (setq company-global-modes '(not r-mode))
+(setq company-selection-wrap-around t)
+; Use tab key to cycle through suggestions.
+; ('tng' means 'tab and go')
+(company-tng-configure-default)
 
 ;; Maybe we want to only trigger company mode using tabs.
 ;; This could also be useful https://emacs.stackexchange.com/questions/13286/how-can-i-stop-the-enter-key-from-triggering-a-completion-in-company-mode ;
 
 
-
-;;
-
-
+;; Trying to split screens cleanly: https://stackoverflow.com/questions/1381794/too-many-split-screens-opening-in-emacs
+(setq split-height-threshold 999)
 
 ;; ;; Whenever possible, split windows vertically by default
 ;; ;; (https://emacs.stackexchange.com/questions/39034/prefer-vertical-splits-over-horizontal-ones)
@@ -754,10 +732,7 @@ Version 2017-06-02"
 ;;    split-window-preferred-function 'split-window-really-sensibly)
 
 
-;; "Nice" writing environment
-(require 'olivetti)
-
-;; ;; Distraction-free screen
+;; "Nice" writing environment. Distraction-free screen.
 (use-package olivetti
   :init
   (setq olivetti-body-width 150))
@@ -779,3 +754,76 @@ Version 2017-06-02"
 ;;   (("<f9>" . distraction-free)))
 
 (require 'transpose-frame)
+
+
+;; ;; Installing non-melpa packages. (doesn't work)
+;; (use-package 'quelpa)
+;; (use-package 'quelpa-use-package)
+;; (unless (package-installed-p 'quelpa)
+;;   (with-temp-buffer
+;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+;;     (eval-buffer)
+;;     (quelpa-self-upgrade)))
+
+
+;; ;; Installing dired+ directly (requires quelpa, which doesn't work)
+;; (use-package dired+
+;;   :quelpa (dired+ :fetcher url :url "https://www.emacswiki.org/emacs/download/dired+.el")
+;;   :defer 1
+;;   :init
+;;   (setq diredp-hide-details-initially-flag nil)
+;;   (setq diredp-hide-details-propagate-flag nil)
+
+;;   :config
+;;   (diredp-toggle-find-file-reuse-dir 1))
+
+
+;; M-; stopped working on blocks of code, so I tried this
+(defun xah-comment-dwim ()
+  "Like `comment-dwim', but toggle comment if cursor is not at end of line.
+
+URL `http://xahlee.info/emacs/emacs/emacs_toggle_comment_by_line.html'
+Version 2016-10-25"
+  (interactive)
+  (if (region-active-p)
+      (comment-dwim nil)
+    (let (($lbp (line-beginning-position))
+          ($lep (line-end-position)))
+      (if (eq $lbp $lep)
+          (progn
+            (comment-dwim nil))
+        (if (eq (point) $lep)
+            (progn
+              (comment-dwim nil))
+          (progn
+            (comment-or-uncomment-region $lbp $lep)
+            (forward-line )))))))
+(global-set-key (kbd "M-;") 'xah-comment-dwim)
+
+;; Enabling repeated trashing of the same file (by creating temporary name).
+(when (eq system-type 'darwin)
+  (osx-trash-setup))
+(setq delete-by-moving-to-trash t)
+
+;; https://stackoverflow.com/questions/20510333/in-emacs-how-to-show-current-file-in-finder
+(defun open-current-file-in-finder ()
+  (interactive)
+  (shell-command "open -R ."))
+
+
+;; Scrollling more smoothly? over in-line org mode Images; only for EMACS 29, which breaks a bunch of things..
+;; (pixel-scroll-precision-mode 1)
+
+
+;;;; remove lockfile warning
+;;;; https://emacs.stackexchange.com/questions/80439/error-warning-unlock-file-unlocking-file-invalid-argument-emacs-d-org-i
+;;(setq-default create-lockfiles nil)
+;;(setq create-lockfiles nil)
+
+;; Also prevent warnings buffer from popping up all the time; also because EMACS29, I think.
+;; https://emacs.stackexchange.com/questions/78800/how-to-disable-automatic-appearance-of-warnings-buffer-in-emacs
+;; (setq warning-minimum-level :error)
+;;(add-to-list 'warning-suppress-log-types '(unlock-file))
+;;(add-to-list 'warning-suppress-types '(unlock-file))
+
+;; trying this out next (global-auto-revert-mode t)

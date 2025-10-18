@@ -21,7 +21,7 @@
 
 ;; Prevent underscore from making "<-".
 (require 'ess-site)
-(ess-toggle-underscore nil)
+; (ess-toggle-underscore nil) 		; It seems we don't need this anymore.
 
 ;; Make indent level 2
 (setq ess-default-style 'GNU)
@@ -36,3 +36,16 @@
 ;; 					(cons "->" " -> ")
 ;; 					(cons "%>%" " %>% ")
 ;; 					(cons "<" nil)))
+
+
+;; load the library
+(require 'quarto-mode)
+
+;; Note that the following is not necessary to run quarto-mode in .qmd files! It's merely illustrating
+;; how to associate different extensions to the mode.
+(add-to-list 'auto-mode-alist '("\\.Rmd\\'" . poly-quarto-mode))
+
+;; Or, with use-package:
+(use-package quarto-mode
+  :mode (("\\.Rmd" . poly-quarto-mode))
+  )

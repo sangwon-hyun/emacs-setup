@@ -13,6 +13,11 @@
 ;;   	      (append '((company-math-symbols-latex company-auctex-macros company-auctex-environments))
 ;;   		      company-backends)))
 
+
+;; Loading some latex packages
+(setq org-latex-packages-alist '(("" "unicode-math")))
+
+
 ;; (add-hook 'LaTeX-mode-hook 'setup-latex-mode)
 (use-package tex
   :ensure auctex)
@@ -24,8 +29,36 @@
 
 ;; enable jumping to latex source location in pdf
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-(setq TeX-source-correlate-method 'synctex)
+(setq TeX-source-correlate-method 'auto)
 (setq TeX-source-correlate-start-server t)
+
+(custom-set-variables
+     '(TeX-source-correlate-method 'synctex)
+     '(TeX-source-correlate-mode t)
+     '(TeX-source-correlate-start-server t))
+
+ ;; '(TeX-view-program-selection
+ ;;   (quote
+ ;;    ((output-dvi "open")
+ ;;     (output-pdf "Skim")
+ ;;     (output-html "open"))))
+
+(setq TeX-source-correlate-method 'synctex
+      TeX-view-program-list   ;; Use Skim, it's awesome
+      '(("Skim" "/Applications/Skim.app/Contents/SharedSupport/displayline -g -b %n %o %b"))
+      TeX-view-program-selection '((output-pdf "Skim"))
+      TeX-auto-save t
+      TeX-parse-self t
+      TeX-save-query nil
+      TeX-master 'dwim)
+
+
+
+
+;; https://emacs.stackexchange.com/questions/2604/debugging-server-related-warning-message
+(require 'server)
+(server-force-delete)  ;; WARNING: Kills any existing edit server
+
 
 ;; Using Evince (doesn't work)
 ;; (setq TeX-view-program-selection '((output-pdf "Evince")))
@@ -36,10 +69,15 @@
 
 ;; Using Evince
 ;; from: https://tex.stackexchange.com/questions/161797/how-to-configure-emacs-and-auctex-to-perform-forward-and-inverse-search
-(setq TeX-view-program-selection '((output-pdf "Okular")))
-(setq TeX-view-program-list (quote (("Okular" "okular --unique %o#src:%n%b"))))
-(setq TeX-view-program-selection (quote ((engine-omega "dvips and gv") (output-dvi "xdvi") (output-pdf "Okular") (output-html "xdg-open"))))
+;; (if (eq system-type 'darwin)
+;;     ;; Insert pdf viewer options for macos
+;;     )
 
+;; (with-system gnu/linux
+;;   (setq TeX-view-program-selection '((output-pdf "Okular")))
+;;   (setq TeX-view-program-list (quote (("Okular" "okular --unique %o#src:%n%b"))))
+;;   (setq TeX-view-program-selection (quote ((engine-omega "dvips and gv") (output-dvi "xdvi") (output-pdf "Okular") (output-html "xdg-open"))))
+;; )
 
 ;; enable line wrap
 (setq-default fill-column 80)
@@ -62,7 +100,7 @@
 
 
 ;; Showing helm-bibtex where the bib files are:
-(setq bibtex-completion-bibliography "/home/sangwonh/Dropbox/papers/references.bib")
+(setq bibtex-completion-bibliography "~/Dropbox/papers/references.bib")
 ;; "/home/shyun/Dropbox/papers/all.bib"))
 
 ;; Specify where helm-bibtex can look for PDFs:
@@ -137,3 +175,12 @@
 
 ;; In multi-file latex, query for master file.
 (setq-default TeX-master t)
+
+;; Still fixing TeX-Master problems
+;; from here:
+;; https://tex.stackexchange.com/questions/410393/how-to-properly-set-up-auctex-to-parse-macros-from-my-own-sty-files
+(setq TeX-parse-self t)
+(setq TeX-auto-save t)
+
+;; This is the most helpful link:
+;; https://tex.stackexchange.com/questions/470193/how-to-make-auctex-aware-of-the-class-in-the-master-file

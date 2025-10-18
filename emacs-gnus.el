@@ -1,4 +1,3 @@
-
 ;; Gmail using gnus: a lot of this is from here:
 ;; https://github.com/brenns10/emacs/blob/master/gnus.org
 (setq user-mail-address "robohyun66@gmail.com"

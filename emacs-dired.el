@@ -60,3 +60,6 @@ Version 2019-11-04 2021-02-16"
 ;; I want to use "a" to be able to go to a new directory /without/ creating a new dired buffer.
 ;;https://www.emacswiki.org/emacs/DiredReuseDirectoryBuffer
 (put 'dired-find-alternate-file 'disabled nil)
+
+;; (require dired+)
+(diredp-toggle-find-file-reuse-dir 1)
